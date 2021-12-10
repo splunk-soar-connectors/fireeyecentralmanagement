@@ -342,7 +342,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
             self.get_phantom_base_url(), alert_id, self.get_asset_id()
         )
         try:
-            r = requests.get(url, verify=False)
+            r = requests.get(url, verify=False)  # nosemgrep
             resp_json = r.json()
         except Exception as e:
             error_msg = self._get_error_message_from_exception(e)
@@ -843,7 +843,7 @@ def main():
             print("Logging into Platform to get the session id")
             r2 = requests.post(
                 login_url, verify=False, data=data, headers=headers, timeout=60
-            )
+            )  # nosemgrep
             session_id = r2.cookies["sessionid"]
         except Exception as e:
             print("Unable to get session id from the platform. Error: " + str(e))
