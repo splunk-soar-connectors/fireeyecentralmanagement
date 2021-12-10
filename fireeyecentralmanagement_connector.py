@@ -17,6 +17,7 @@
 from __future__ import print_function, unicode_literals
 
 import json
+import sys
 from datetime import datetime, timedelta
 
 import dateutil
@@ -98,7 +99,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
     def get_auth_token(self, action_result):
         login_endpoint = "{}{}".format(self._base_url, CM_AUTH_LOGIN_URL)
 
-        response = requests.post(login_endpoint, auth=(self._username, self._password), verify=self._verify_ssl)
+        response = requests.post(login_endpoint, auth=(self._username, self._password), verify=self._verify_ssl, timeout=60)
 
         if 200 <= response.status_code < 399:
             try:
@@ -121,7 +122,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
         if self._client_token:
             headers[CM_CLIENT_TOKEN_HEADER] = self._client_token
 
-        response = requests.post(logout_endpoint, headers=headers, verify=self._verify_ssl)
+        response = requests.post(logout_endpoint, headers=headers, verify=self._verify_ssl, timeout=60)
 
         if response.status_code == 204:
             return phantom.APP_SUCCESS
@@ -368,7 +369,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
         url = "{0}rest/container/{1}".format(self.get_phantom_base_url(), container_id)
 
         try:
-            requests.post(url, data=(json.dumps(updated_container)), verify=False)
+            requests.post(url, data=(json.dumps(updated_container)), verify=False, timeout=60)  # nosemgrep
         except Exception as e:
             err = self._get_error_message_from_exception(e)
             self.debug_print(f"Error while updating the container: {err}")
@@ -799,7 +800,7 @@ def main():
             )
 
             print("Accessing the Login page")
-            r = requests.get(login_url, verify=False)
+            r = requests.get(login_url, timeout=60)
             csrftoken = r.cookies["csrftoken"]
 
             data = dict()
@@ -812,11 +813,11 @@ def main():
             headers["Referer"] = login_url
 
             print("Logging into Platform to get the session id")
-            r2 = requests.post(login_url, verify=False, data=data, headers=headers)
+            r2 = requests.post(login_url, verify=False, data=data, headers=headers, timeout=60)
             session_id = r2.cookies["sessionid"]
         except Exception as e:
             print("Unable to get session id from the platform. Error: " + str(e))
-            exit(1)
+            sys.exit(1)
 
     with open(args.input_test_json) as f:
         in_json = f.read()
@@ -833,7 +834,7 @@ def main():
         ret_val = connector._handle_action(json.dumps(in_json), None)
         print(json.dumps(json.loads(ret_val), indent=4))
 
-    exit(0)
+    sys.exit(0)
 
 
 if __name__ == "__main__":
