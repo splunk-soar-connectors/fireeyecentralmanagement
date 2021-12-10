@@ -389,8 +389,8 @@ class FireeyeCentralManagementConnector(BaseConnector):
 
         try:
             requests.post(
-                url, data=(json.dumps(updated_container)), verify=False, timeout=60
-            )  # nosemgrep
+                url, data=(json.dumps(updated_container)), verify=False, timeout=60  # nosemgrep
+            )
         except Exception as e:
             err = self._get_error_message_from_exception(e)
             self.debug_print(f"Error while updating the container: {err}")
@@ -842,8 +842,8 @@ def main():
 
             print("Logging into Platform to get the session id")
             r2 = requests.post(
-                login_url, verify=False, data=data, headers=headers, timeout=60
-            )  # nosemgrep
+                login_url, verify=False, data=data, headers=headers, timeout=60  # nosemgrep
+            )
             session_id = r2.cookies["sessionid"]
         except Exception as e:
             print("Unable to get session id from the platform. Error: " + str(e))
