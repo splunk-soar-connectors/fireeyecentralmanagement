@@ -388,8 +388,8 @@ class FireeyeCentralManagementConnector(BaseConnector):
         url = "{0}rest/container/{1}".format(self.get_phantom_base_url(), container_id)
 
         try:
-            requests.post(
-                url, data=(json.dumps(updated_container)), verify=False, timeout=60  # nosemgrep
+            requests.post(  # nosemgrep
+                url, data=(json.dumps(updated_container)), verify=False, timeout=60
             )
         except Exception as e:
             err = self._get_error_message_from_exception(e)
@@ -841,8 +841,8 @@ def main():
             headers["Referer"] = login_url
 
             print("Logging into Platform to get the session id")
-            r2 = requests.post(
-                login_url, verify=False, data=data, headers=headers, timeout=60  # nosemgrep
+            r2 = requests.post(  # nosemgrep
+                login_url, verify=False, data=data, headers=headers, timeout=60
             )
             session_id = r2.cookies["sessionid"]
         except Exception as e:
