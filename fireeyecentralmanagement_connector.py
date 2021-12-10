@@ -32,6 +32,8 @@ from phantom.vault import Vault
 
 from fireeyecentralmanagement_consts import *
 
+CM_PRODUCTS_MAP_REVERSE = {CM_PRODUCTS_MAP[key]: key for key in CM_PRODUCTS_MAP.keys()}
+
 
 class RetVal(tuple):
     def __new__(cls, val1, val2=None):
@@ -99,7 +101,12 @@ class FireeyeCentralManagementConnector(BaseConnector):
     def get_auth_token(self, action_result):
         login_endpoint = "{}{}".format(self._base_url, CM_AUTH_LOGIN_URL)
 
-        response = requests.post(login_endpoint, auth=(self._username, self._password), verify=self._verify_ssl, timeout=60)
+        response = requests.post(
+            login_endpoint,
+            auth=(self._username, self._password),
+            verify=self._verify_ssl,
+            timeout=60,
+        )
 
         if 200 <= response.status_code < 399:
             try:
@@ -108,8 +115,14 @@ class FireeyeCentralManagementConnector(BaseConnector):
                 return RetVal(phantom.APP_SUCCESS, auth_token)
             except KeyError as e:
                 error_msg = self._get_error_message_from_exception(e)
-                message = "Could not extract auth token from response header: {msg}".format(msg=error_msg)
-                return RetVal(action_result.set_status(phantom.APP_ERROR, message), None)
+                message = (
+                    "Could not extract auth token from response header: {msg}".format(
+                        msg=error_msg
+                    )
+                )
+                return RetVal(
+                    action_result.set_status(phantom.APP_ERROR, message), None
+                )
 
         message = "Could not retrieve auth token"
         return RetVal(action_result.set_status(phantom.APP_ERROR, message), None)
@@ -122,7 +135,9 @@ class FireeyeCentralManagementConnector(BaseConnector):
         if self._client_token:
             headers[CM_CLIENT_TOKEN_HEADER] = self._client_token
 
-        response = requests.post(logout_endpoint, headers=headers, verify=self._verify_ssl, timeout=60)
+        response = requests.post(
+            logout_endpoint, headers=headers, verify=self._verify_ssl, timeout=60
+        )
 
         if response.status_code == 204:
             return phantom.APP_SUCCESS
@@ -247,7 +262,11 @@ class FireeyeCentralManagementConnector(BaseConnector):
         if not kwargs.get("headers"):
             kwargs["headers"] = {}
 
-        headers = {"Accept": "application/json", "Content-Type": "application/json", CM_TOKEN_HEADER: self._auth_token}
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            CM_TOKEN_HEADER: self._auth_token,
+        }
 
         headers.update(kwargs["headers"])
 
@@ -293,7 +312,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
         return action_result.set_status(phantom.APP_SUCCESS)
 
     def _retrieve_alerts(self, action_result, since, limit):
-        date = since.astimezone().isoformat(timespec='milliseconds')
+        date = since.astimezone().isoformat(timespec="milliseconds")
 
         params = {"start_time": date, "duration": "48_hours", "info_level": "concise"}
 
@@ -369,7 +388,9 @@ class FireeyeCentralManagementConnector(BaseConnector):
         url = "{0}rest/container/{1}".format(self.get_phantom_base_url(), container_id)
 
         try:
-            requests.post(url, data=(json.dumps(updated_container)), verify=False, timeout=60)  # nosemgrep
+            requests.post(
+                url, data=(json.dumps(updated_container)), verify=False, timeout=60
+            )  # nosemgrep
         except Exception as e:
             err = self._get_error_message_from_exception(e)
             self.debug_print(f"Error while updating the container: {err}")
@@ -512,7 +533,9 @@ class FireeyeCentralManagementConnector(BaseConnector):
         for alert in alerts:
             if self._product_filter:
                 if alert["product"] not in product_filter:
-                    self.debug_print("Received alert for product which is not included in product filter, ignoring..")
+                    self.debug_print(
+                        "Received alert for product which is not included in product filter, ignoring.."
+                    )
                     continue
             self._save_alert_container(action_result, alert)
 
@@ -535,7 +558,9 @@ class FireeyeCentralManagementConnector(BaseConnector):
         params = {}
 
         if (start_time and not end_time) or (end_time and not start_time):
-            return action_result.set_status(phantom.APP_ERROR, "Must provide both start and end time filters")
+            return action_result.set_status(
+                phantom.APP_ERROR, "Must provide both start and end time filters"
+            )
 
         if start_time:
             params["start_time"] = start_time
@@ -575,13 +600,9 @@ class FireeyeCentralManagementConnector(BaseConnector):
 
         endpoint = "{}/{}".format(CM_EMAILMGMT_QUARANTINE, id)
 
-        params = {
-            "sensorName": sensor_name
-        }
+        params = {"sensorName": sensor_name}
 
-        headers = {
-            "Accept": "application/octet-stream"
-        }
+        headers = {"Accept": "application/octet-stream"}
 
         ret_val, response = self._make_rest_call(
             endpoint, action_result, params=params, headers=headers
@@ -594,22 +615,27 @@ class FireeyeCentralManagementConnector(BaseConnector):
         local_dir = vault_tmp_dir + "/"
         file_name = id + ".eml"
 
-        with open(local_dir + file_name, 'wb') as f_out:
+        with open(local_dir + file_name, "wb") as f_out:
             for chunk in response.iter_content(chunk_size=1024):
                 if chunk:
                     f_out.write(chunk)
 
         try:
-            success, message, vault_id = phantom_rules.vault_add(container=self.get_container_id(),
-                                                                 file_location=local_dir + file_name,
-                                                                 file_name=file_name,
-                                                                 metadata={"mime_type": "message/rfc822"})
+            success, message, vault_id = phantom_rules.vault_add(
+                container=self.get_container_id(),
+                file_location=local_dir + file_name,
+                file_name=file_name,
+                metadata={"mime_type": "message/rfc822"},
+            )
             summary = action_result.update_summary({})
-            summary['vault_id'] = vault_id
+            summary["vault_id"] = vault_id
 
         except Exception as e:
             err = self._get_error_message_from_exception(e)
-            return action_result.set_status(phantom.APP_ERROR, "Unable to store file in Phantom Vault. {0}".format(err))
+            return action_result.set_status(
+                phantom.APP_ERROR,
+                "Unable to store file in Phantom Vault. {0}".format(err),
+            )
 
         return action_result.set_status(phantom.APP_SUCCESS)
 
@@ -662,7 +688,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
             return action_result.set_status(phantom.APP_ERROR, ERR_START_AND_END_TIME)
 
         if not start_time and not end_time:
-            end_time = datetime.utcnow().astimezone().isoformat(timespec='milliseconds')
+            end_time = datetime.utcnow().astimezone().isoformat(timespec="milliseconds")
 
         params = {
             "duration": duration,
@@ -752,7 +778,9 @@ class FireeyeCentralManagementConnector(BaseConnector):
         self._product_filter = config.get("product_filter")
         self._include_riskware = config.get("include_riskware")
 
-        self._this_run = datetime.utcnow().astimezone().isoformat(timespec='milliseconds')
+        self._this_run = (
+            datetime.utcnow().astimezone().isoformat(timespec="milliseconds")
+        )
 
         return phantom.APP_SUCCESS
 
@@ -813,7 +841,9 @@ def main():
             headers["Referer"] = login_url
 
             print("Logging into Platform to get the session id")
-            r2 = requests.post(login_url, verify=False, data=data, headers=headers, timeout=60)
+            r2 = requests.post(
+                login_url, verify=False, data=data, headers=headers, timeout=60
+            )
             session_id = r2.cookies["sessionid"]
         except Exception as e:
             print("Unable to get session id from the platform. Error: " + str(e))

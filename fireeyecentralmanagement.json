@@ -159,35 +159,35 @@
                     "data_type": "string",
                     "required": false,
                     "primary": false,
-                    "order": 1
+                    "order": 0
                 },
                 "end_time": {
                     "description": "End Time",
                     "data_type": "string",
                     "required": false,
                     "primary": false,
-                    "order": 2
+                    "order": 1
                 },
                 "from": {
                     "description": "From",
                     "data_type": "string",
                     "required": false,
                     "primary": false,
-                    "order": 3
+                    "order": 2
                 },
                 "subject": {
                     "description": "Subject",
                     "data_type": "string",
                     "required": false,
                     "primary": false,
-                    "order": 4
+                    "order": 3
                 },
                 "appliance_id": {
                     "description": "Appliance ID",
                     "data_type": "string",
                     "required": false,
                     "primary": false,
-                    "order": 5,
+                    "order": 4,
                     "contains": ["fireeye cm appliance id"]
                 }
             },
@@ -247,7 +247,7 @@
                     "data_path": "action_result.status",
                     "data_type": "string",
                     "column_name": "status",
-                    "column_order": 2
+                    "column_order": 0
                 },
                 {
                     "data_path": "action_result.summary",

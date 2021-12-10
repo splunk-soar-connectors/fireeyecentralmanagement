@@ -28,9 +28,6 @@ CM_PRODUCTS_MAP = {
     "AX": "MAS"
 }
 
-CM_PRODUCTS_MAP_REVERSE = {CM_PRODUCTS_MAP[key]: key for key in CM_PRODUCTS_MAP.keys()}
-
-
 # Constants relating to 'get_error_message_from_exception'
 ERR_CODE_MSG = "Error code unavailable"
 ERR_MSG_UNAVAILABLE = "Error message unavailable. Please check the asset configuration and|or action parameters."
