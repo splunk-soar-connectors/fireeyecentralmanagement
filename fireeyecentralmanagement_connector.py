@@ -1,6 +1,6 @@
 # File: fireeyecentralmanagement_connector.py
 #
-# Copyright (c) 2021 Splunk Inc.
+# Copyright (c) 2022 Splunk Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -54,36 +54,29 @@ class FireeyeCentralManagementConnector(BaseConnector):
         self._auth_token = None
 
     def _get_error_message_from_exception(self, e):
-        """This method is used to get appropriate error message from the exception.
+        """
+        Get appropriate error message from the exception.
         :param e: Exception object
         :return: error message
         """
 
+        error_code = None
+        error_msg = ERR_MSG_UNAVAILABLE
+
         try:
-            if e.args:
+            if hasattr(e, "args"):
                 if len(e.args) > 1:
                     error_code = e.args[0]
                     error_msg = e.args[1]
                 elif len(e.args) == 1:
-                    error_code = ERR_CODE_MSG
                     error_msg = e.args[0]
-            else:
-                error_code = ERR_CODE_MSG
-                error_msg = ERR_MSG_UNAVAILABLE
         except:
-            error_code = ERR_CODE_MSG
-            error_msg = ERR_MSG_UNAVAILABLE
+            pass
 
-        try:
-            if error_code in ERR_CODE_MSG:
-                error_text = "Error Message: {0}".format(error_msg)
-            else:
-                error_text = "Error Code: {0}. Error Message: {1}".format(
-                    error_code, error_msg
-                )
-        except:
-            self.debug_print(PARSE_ERR_MSG)
-            error_text = PARSE_ERR_MSG
+        if not error_code:
+            error_text = "Error Message: {}".format(error_msg)
+        else:
+            error_text = "Error Code: {}. Error Message: {}".format(error_code, error_msg)
 
         return error_text
 
@@ -128,7 +121,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
         return RetVal(action_result.set_status(phantom.APP_ERROR, message), None)
 
     def release_auth_token(self):
-        logout_endpoint = self._base_url + CM_AUTH_LOGOUT_URL
+        logout_endpoint = "{}{}".format(self._base_url, CM_AUTH_LOGOUT_URL)
 
         headers = {CM_TOKEN_HEADER: self._auth_token}
 
@@ -150,6 +143,9 @@ class FireeyeCentralManagementConnector(BaseConnector):
 
         try:
             soup = BeautifulSoup(response.text, "html.parser")
+            # Remove the script, style, footer and navigation part from the HTML message
+            for element in soup(["script", "style", "footer", "nav"]):
+                element.extract()
             error_text = soup.text
             split_lines = error_text.split("\n")
             split_lines = [x.strip() for x in split_lines if x.strip()]
@@ -524,7 +520,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
         except Exception as e:
             error_msg = self._get_error_message_from_exception(e)
             return action_result.set_status(
-                phantom.APP_ERROR, "Error retrieving alerts during poll: " + error_msg
+                phantom.APP_ERROR, "Error retrieving alerts during poll: {}".format(error_msg)
             )
 
         self.debug_print(f"Total alerts retrieved {len(alerts)}")
@@ -612,8 +608,8 @@ class FireeyeCentralManagementConnector(BaseConnector):
             return action_result.get_status()
 
         vault_tmp_dir = Vault.get_vault_tmp_dir()
-        local_dir = vault_tmp_dir + "/"
-        file_name = id + ".eml"
+        local_dir = "{}/".format(vault_tmp_dir)
+        file_name = "{}.eml".format(id)
 
         with open(local_dir + file_name, "wb") as f_out:
             for chunk in response.iter_content(chunk_size=1024):
@@ -623,7 +619,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
         try:
             success, message, vault_id = phantom_rules.vault_add(
                 container=self.get_container_id(),
-                file_location=local_dir + file_name,
+                file_location="{}{}".format(local_dir, file_name),
                 file_name=file_name,
                 metadata={"mime_type": "message/rfc822"},
             )
