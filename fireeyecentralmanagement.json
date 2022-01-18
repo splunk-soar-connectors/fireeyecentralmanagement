@@ -260,12 +260,14 @@
                     "primary": true,
                     "contains": [
                         "fireeye cm email queue"
-                    ]
+                    ],
+                    "order": 0
                 },
                 "sensor_name": {
                     "description": "The sensor display name",
                     "data_type": "string",
-                    "required": true
+                    "required": true,
+                    "order": 1
                 }
             },
             "output": [
@@ -488,19 +490,23 @@
                     "contains": [
                         "domain"
                     ],
-                    "primary": true
+                    "primary": true,
+                    "order": 4
                 },
                 "file_name": {
                     "description": "Filter for alerts with a malware file with a given name",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "order": 5
                 },
                 "malware_name": {
                     "description": "Filter for alerts with a malware with a given name",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "order": 6
                 },
                 "malware_type": {
                     "description": "Filter for alerts with a malware with a given type",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "order": 7
                 },
                 "md5": {
                     "description": "Filter for alerts with a given md5 hash",
@@ -509,7 +515,8 @@
                         "md5",
                         "hash"
                     ],
-                    "primary": true
+                    "primary": true,
+                    "order": 8
                 },
                 "recipient_email": {
                     "description": "Filter for alerts with a given recipient email",
@@ -517,7 +524,8 @@
                     "contains": [
                         "email"
                     ],
-                    "primary": true
+                    "primary": true,
+                    "order": 9
                 },
                 "sender_email": {
                     "description": "Filter for alerts with a given sender email",
@@ -525,7 +533,8 @@
                     "contains": [
                         "email"
                     ],
-                    "primary": true
+                    "primary": true,
+                    "order": 10
                 },
                 "src_ip": {
                     "description": "Filter for alerts with a given source ip",
@@ -533,7 +542,8 @@
                     "contains": [
                         "ip"
                     ],
-                    "primary": true
+                    "primary": true,
+                    "order": 10
                 },
                 "dst_ip": {
                     "description": "Filter for alerts with a given destination ip",
@@ -541,7 +551,8 @@
                     "contains": [
                         "ip"
                     ],
-                    "primary": true
+                    "primary": true,
+                    "order": 11
                 },
                 "url": {
                     "description": "Filter for alerts with a given url",
@@ -549,7 +560,8 @@
                     "contains": [
                         "url"
                     ],
-                    "primary": true
+                    "primary": true,
+                    "order": 12
                 }
             },
             "output": [
