@@ -1,4 +1,4 @@
-# File: fireeye_cm_view.py
+# File: fireeyecentralmanagement_view.py
 #
 # Copyright (c) 2022 Splunk Inc.
 #
@@ -51,6 +51,6 @@ def display_view(provides, all_app_runs, context):
             results.append(ctx_result)
 
     if provides == 'list alerts':
-        return 'fireeye_cm_list_alerts.html'
+        return 'fireeyecentralmanagement_list_alerts.html'
     elif provides == 'list quarantined emails':
-        return 'fireeye_cm_list_quarantined_emails.html'
+        return 'fireeyecentralmanagement_list_quarantined_emails.html'

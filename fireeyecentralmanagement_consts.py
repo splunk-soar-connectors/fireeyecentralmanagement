@@ -31,3 +31,7 @@ CM_PRODUCTS_MAP = {
 # Constants relating to 'get_error_message_from_exception'
 ERR_MSG_UNAVAILABLE = "Error message unavailable. Please check the asset configuration and|or action parameters."
 ERR_START_AND_END_TIME = "Cannot specify both start time and end time. Please remove either one."
+
+CM_VAULT_STATE_FILE_CORRUPT_ERR = "Error occurred while loading the state file due to its unexpected format.\
+     Resetting the state file with the default format. Please try again."
+CM_ERR_INVALID_FIELD = "Please provide a valid value in the '{key}' action parameter"

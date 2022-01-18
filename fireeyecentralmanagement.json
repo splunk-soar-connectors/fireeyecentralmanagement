@@ -242,7 +242,7 @@
                 "type": "custom",
                 "width": 12,
                 "height": 5,
-                "view": "fireeye_cm_view.display_view"
+                "view": "fireeyecentralmanagement_view.display_view"
             },
             "versions": "EQ(*)"
         },
@@ -718,9 +718,12 @@
                 "type": "custom",
                 "width": 12,
                 "height": 5,
-                "view": "fireeye_cm_view.display_view"
+                "view": "fireeyecentralmanagement_view.display_view"
             },
             "versions": "EQ(*)"
         }
-    ]
+    ],
+    "pip_dependencies": {
+        "wheel": []
+    }
 }

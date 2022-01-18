@@ -8,7 +8,7 @@
 {% endblock %}
 {% block widget_content %} <!-- Main Start Block -->
 
-<!-- File: fireeye_cm_list_alerts.html
+<!-- File: fireeyecentralmanagement_list_quarantined_emails.html
   Copyright (c) 2022 Splunk Inc.
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -87,29 +87,31 @@
             <div class="list_items_table overflow-column">
                 <table class="phantom-table dataTable">
                     <thead>
-                        <th class="widget-th">Product</th>
-                        <th class="widget-th">ID</th>
                         <th class="widget-th">UUID</th>
-                        <th class="widget-th">Name</th>
+                        <th class="widget-th">Queue ID</th>
+                        <th class="widget-th">Message ID</th>
+                        <th class="widget-th">From</th>
+                        <th class="widget-th">Subject</th>
                         <th class="widget-th">Appliance ID</th>
-                        <th class="widget-th">Action</th>
+                        <th class="widget-th">Completed At</th>
                     </thead>
                     <tbody>
-                    {% for alert in result.data %}
+                    {% for email in result.data %}
                         <tr>
-                            <td class="widget-td">{{ alert.product }}</td>
                             <td class="widget-td">
                                 <a href="javascript:;"
-                                onclick="context_menu(this, [{'contains': ['fireeye cm alert id'], 'value': '{{ alert.id }}' }], 0, {{ container.id }}, null, false);">
-                                {{ alert.id }}
+                                onclick="context_menu(this, [{'contains': ['fireeye cm email uuid'], 'value': '{{ email.email_uuid }}' }], 0, {{ container.id }}, null, false);">
+                                {{ email.email_uuid }}
                                 &nbsp;
                                 <span class="fa fa-caret-down" style="font-size: smaller;"></span>
                                 </a>
                             </td>
-                            <td class="widget-td">{{ alert.uuid }}</td>
-                            <td class="widget-td">{{ alert.name }}</td>
-                            <td class="widget-td">{{ alert.applianceId }}</td>
-                            <td class="widget-td">{{ alert.action }}</td>
+                            <td class="widget-td">{{ email.queue_id }}</td>
+                            <td class="widget-td">{{ email.message_id }}</td>
+                            <td class="widget-td">{{ email.from }}</td>
+                            <td class="widget-td">{{ email.subject }}</td>
+                            <td class="widget-td">{{ email.appliance_id }}</td>
+                            <td class="widget-td">{{ email.completed_at }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>

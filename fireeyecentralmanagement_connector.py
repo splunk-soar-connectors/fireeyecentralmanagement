@@ -81,14 +81,14 @@ class FireeyeCentralManagementConnector(BaseConnector):
         return error_text
 
     def _process_empty_response(self, response, action_result):
-        if response.status_code == 200:
+        if response.status_code == 200 or response.status_code == 204:
             return RetVal(phantom.APP_SUCCESS, {})
 
         return RetVal(
             action_result.set_status(
-                phantom.APP_ERROR, "Empty response and no information in the header"
+                phantom.APP_ERROR, "Status Code {}. Empty response and no information in the header".format(response.status_code)
             ),
-            None,
+            None
         )
 
     def get_auth_token(self, action_result):
@@ -153,7 +153,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
         except:
             error_text = "Cannot parse error details"
 
-        message = "Status Code: {0}. Data from server:\n{1}\n".format(
+        message = "Status Code: {0}. Data from server: {1}".format(
             status_code, error_text
         )
 
@@ -165,10 +165,11 @@ class FireeyeCentralManagementConnector(BaseConnector):
         try:
             resp_json = r.json()
         except Exception as e:
+            err = self._get_error_message_from_exception(e)
             return RetVal(
                 action_result.set_status(
                     phantom.APP_ERROR,
-                    "Unable to parse JSON response. Error: {0}".format(str(e)),
+                    "Unable to parse JSON response. Error: {0}".format(err),
                 ),
                 None,
             )
@@ -253,7 +254,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
             ret_val, token = self.get_auth_token(action_result)
             if phantom.is_fail(ret_val):
                 self.save_progress("Could not retrieve auth token.")
-                return action_result.get_status()
+                return RetVal(action_result.get_status(), None)
 
         if not kwargs.get("headers"):
             kwargs["headers"] = {}
@@ -274,10 +275,11 @@ class FireeyeCentralManagementConnector(BaseConnector):
         try:
             r = request_func(url, verify=self._verify_ssl, headers=headers, **kwargs)
         except Exception as e:
+            err = self._get_error_message_from_exception(e)
             return RetVal(
                 action_result.set_status(
                     phantom.APP_ERROR,
-                    "Error Connecting to server. Details: {0}".format(str(e)),
+                    "Error Connecting to server. Details: {0}".format(err),
                 ),
                 resp_json,
             )
@@ -291,7 +293,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
         ret_val, token = self.get_auth_token(action_result)
 
         if phantom.is_fail(ret_val):
-            self.save_progress("Test Connectivity Failed.")
+            self.save_progress("Test Connectivity Failed")
             return action_result.get_status()
 
         self.save_progress("Successfully retrieved token")
@@ -299,7 +301,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
         ret_val = self.release_auth_token()
 
         if phantom.is_fail(ret_val):
-            self.save_progress("Could not release auth token.")
+            self.save_progress("Could not release auth token")
             return action_result.get_status()
 
         self.save_progress("Released token")
@@ -492,6 +494,10 @@ class FireeyeCentralManagementConnector(BaseConnector):
         product_filter = []
 
         if self._product_filter:
+            product_filter_list = [value.strip() for value in self._product_filter.split(",") if value.strip()]
+            if not product_filter_list:
+                return action_result.set_status(phantom.APP_ERROR, CM_ERR_INVALID_FIELD.format(key="_product_filter"))
+
             for product in self._product_filter.split(","):
                 product_filter.append(CM_PRODUCTS_MAP.get(product, product))
 
@@ -526,14 +532,18 @@ class FireeyeCentralManagementConnector(BaseConnector):
         self.debug_print(f"Total alerts retrieved {len(alerts)}")
         self.save_progress(f"Total alerts retrieved {len(alerts)}")
 
-        for alert in alerts:
-            if self._product_filter:
-                if alert["product"] not in product_filter:
-                    self.debug_print(
-                        "Received alert for product which is not included in product filter, ignoring.."
-                    )
-                    continue
-            self._save_alert_container(action_result, alert)
+        try:
+            for alert in alerts:
+                if self._product_filter:
+                    if alert.get("product", []) not in product_filter:
+                        self.debug_print(
+                            "Received alert for product which is not included in product filter, ignoring.."
+                        )
+                        continue
+                self._save_alert_container(action_result, alert)
+        except Exception as e:
+            err = self._get_error_message_from_exception(e)
+            return action_result.set_status(phantom.APP_ERROR, err)
 
         self.save_progress("Polling complete")
 
@@ -577,11 +587,12 @@ class FireeyeCentralManagementConnector(BaseConnector):
         if phantom.is_fail(ret_val):
             return action_result.get_status()
 
-        for email in emails:
-            action_result.add_data(email)
+        if isinstance(emails, list):
+            for email in emails:
+                action_result.add_data(email)
 
         summary = action_result.update_summary({})
-        summary["num_emails"] = len(emails)
+        summary["num_emails"] = len(emails) if isinstance(emails, list) else 0
 
         return action_result.set_status(phantom.APP_SUCCESS)
 
@@ -643,7 +654,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
 
         id = param["id"]
 
-        endpoint = CM_ALERT_URL + id
+        endpoint = "{}{}".format(CM_ALERT_URL, id)
 
         ret_val, response = self._make_rest_call(
             endpoint, action_result, params=None, headers=None
@@ -652,7 +663,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
         if phantom.is_fail(ret_val):
             return action_result.get_status()
 
-        alerts = response["alert"]
+        alerts = response.get("alert", [])
         for alert in alerts:
             action_result.add_data(alert)
 
@@ -723,7 +734,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
         if phantom.is_fail(ret_val):
             return action_result.get_status()
 
-        alerts = response["alert"]
+        alerts = response.get("alert", [])
         for alert in alerts:
             action_result.add_data(alert)
 
@@ -764,9 +775,16 @@ class FireeyeCentralManagementConnector(BaseConnector):
     def initialize(self):
         self._state = self.load_state()
 
+        if not isinstance(self._state, dict):
+            self.debug_print("Resetting the state file with the default format")
+            self._state = {
+                "app_version": self.get_app_json().get('app_version')
+            }
+            return self.set_status(phantom.APP_ERROR, CM_VAULT_STATE_FILE_CORRUPT_ERR)
+
         config = self.get_config()
 
-        self._base_url = config["server_url"]
+        self._base_url = config["server_url"].rstrip('/')
         self._verify_ssl = config.get("verify_ssl", False)
         self._username = config["username"]
         self._password = config["password"]
