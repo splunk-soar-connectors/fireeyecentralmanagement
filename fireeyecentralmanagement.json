@@ -543,7 +543,7 @@
                         "ip"
                     ],
                     "primary": true,
-                    "order": 10
+                    "order": 11
                 },
                 "dst_ip": {
                     "description": "Filter for alerts with a given destination ip",
@@ -552,7 +552,7 @@
                         "ip"
                     ],
                     "primary": true,
-                    "order": 11
+                    "order": 12
                 },
                 "url": {
                     "description": "Filter for alerts with a given url",
@@ -561,7 +561,7 @@
                         "url"
                     ],
                     "primary": true,
-                    "order": 12
+                    "order": 13
                 }
             },
             "output": [
@@ -736,6 +736,35 @@
         }
     ],
     "pip_dependencies": {
-        "wheel": []
+        "wheel": [
+            {
+                "module": "beautifulsoup4",
+                "input_file": "wheels/beautifulsoup4-4.9.1-py3-none-any.whl"
+            },
+            {
+                "module": "certifi",
+                "input_file": "wheels/certifi-2021.10.8-py2.py3-none-any.whl"
+            },
+            {
+                "module": "chardet",
+                "input_file": "wheels/chardet-3.0.4-py2.py3-none-any.whl"
+            },
+            {
+                "module": "idna",
+                "input_file": "wheels/idna-2.10-py2.py3-none-any.whl"
+            },
+            {
+                "module": "requests",
+                "input_file": "wheels/requests-2.25.0-py2.py3-none-any.whl"
+            },
+            {
+                "module": "soupsieve",
+                "input_file": "wheels/soupsieve-2.3.1-py3-none-any.whl"
+            },
+            {
+                "module": "urllib3",
+                "input_file": "wheels/urllib3-1.26.8-py2.py3-none-any.whl"
+            }
+        ]
     }
 }

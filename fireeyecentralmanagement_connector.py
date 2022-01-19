@@ -94,12 +94,22 @@ class FireeyeCentralManagementConnector(BaseConnector):
     def get_auth_token(self, action_result):
         login_endpoint = "{}{}".format(self._base_url, CM_AUTH_LOGIN_URL)
 
-        response = requests.post(
-            login_endpoint,
-            auth=(self._username, self._password),
-            verify=self._verify_ssl,
-            timeout=60,
-        )
+        try:
+            response = requests.post(
+                login_endpoint,
+                auth=(self._username, self._password),
+                verify=self._verify_ssl,
+                timeout=60
+            )
+        except requests.exceptions.InvalidURL as e:
+            self.debug_print(self._get_error_message_from_exception(e))
+            return RetVal(action_result.set_status(phantom.APP_ERROR, CM_ERR_INVALID_URL), None)
+        except requests.exceptions.InvalidSchema as e:
+            self.debug_print(self._get_error_message_from_exception(e))
+            return RetVal(action_result.set_status(phantom.APP_ERROR, CM_ERR_INVALID_SCHEMA), None)
+        except Exception as e:
+            error_msg = self._get_error_message_from_exception(e)
+            return RetVal(action_result.set_status(phantom.APP_ERROR, error_msg), None)
 
         if 200 <= response.status_code < 399:
             try:
@@ -496,9 +506,9 @@ class FireeyeCentralManagementConnector(BaseConnector):
         if self._product_filter:
             product_filter_list = [value.strip() for value in self._product_filter.split(",") if value.strip()]
             if not product_filter_list:
-                return action_result.set_status(phantom.APP_ERROR, CM_ERR_INVALID_FIELD.format(key="_product_filter"))
+                return action_result.set_status(phantom.APP_ERROR, CM_ERR_INVALID_FIELD.format(key="product filter"))
 
-            for product in self._product_filter.split(","):
+            for product in product_filter_list:
                 product_filter.append(CM_PRODUCTS_MAP.get(product, product))
 
         self.debug_print("Configured Product filter", product_filter)
@@ -780,7 +790,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
             self._state = {
                 "app_version": self.get_app_json().get('app_version')
             }
-            return self.set_status(phantom.APP_ERROR, CM_VAULT_STATE_FILE_CORRUPT_ERR)
+            return self.set_status(phantom.APP_ERROR, CM_STATE_FILE_CORRUPT_ERR)
 
         config = self.get_config()
 
