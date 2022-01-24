@@ -785,6 +785,10 @@ class FireeyeCentralManagementConnector(BaseConnector):
     def initialize(self):
         self._state = self.load_state()
 
+        self._this_run = (
+            datetime.utcnow().astimezone().isoformat(timespec="milliseconds")
+        )
+
         if not isinstance(self._state, dict):
             self.debug_print("Resetting the state file with the default format")
             self._state = {
@@ -801,10 +805,6 @@ class FireeyeCentralManagementConnector(BaseConnector):
         self._client_token = config.get("client_token")
         self._product_filter = config.get("product_filter")
         self._include_riskware = config.get("include_riskware")
-
-        self._this_run = (
-            datetime.utcnow().astimezone().isoformat(timespec="milliseconds")
-        )
 
         return phantom.APP_SUCCESS
 

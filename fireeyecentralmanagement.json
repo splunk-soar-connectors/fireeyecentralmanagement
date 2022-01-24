@@ -496,6 +496,9 @@
                 "file_name": {
                     "description": "Filter for alerts with a malware file with a given name",
                     "data_type": "string",
+                    "contains": [
+                        "file name"
+                    ],
                     "order": 5
                 },
                 "malware_name": {
@@ -598,7 +601,10 @@
                 },
                 {
                     "data_path": "action_result.parameter.file_name",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "contains": [
+                        "file name"
+                    ]
                 },
                 {
                     "data_path": "action_result.parameter.malware_name",
