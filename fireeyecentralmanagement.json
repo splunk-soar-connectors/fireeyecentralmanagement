@@ -499,6 +499,7 @@
                     "contains": [
                         "file name"
                     ],
+                    "primary": true,
                     "order": 5
                 },
                 "malware_name": {
