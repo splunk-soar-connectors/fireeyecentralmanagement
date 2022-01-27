@@ -350,7 +350,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
             self.get_phantom_base_url(), alert_id, self.get_asset_id()
         )
         try:
-            r = requests.get(url, verify=self._verify_ssl)
+            r = requests.get(url, verify=self._verify_ssl)  # nosemgrep
             resp_json = r.json()
         except Exception as e:
             error_msg = self._get_error_message_from_exception(e)
