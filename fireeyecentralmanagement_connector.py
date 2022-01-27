@@ -32,7 +32,7 @@ from phantom.vault import Vault
 
 from fireeyecentralmanagement_consts import *
 
-CM_PRODUCTS_MAP_REVERSE = {CM_PRODUCTS_MAP[key]: key for key in CM_PRODUCTS_MAP.keys()}
+CM_PRODUCTS_MAP_REVERSE = {value: key for key, value in CM_PRODUCTS_MAP.items()}
 
 
 class RetVal(tuple):
@@ -350,7 +350,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
             self.get_phantom_base_url(), alert_id, self.get_asset_id()
         )
         try:
-            r = requests.get(url, verify=False)  # nosemgrep
+            r = requests.get(url, verify=self._verify_ssl)
             resp_json = r.json()
         except Exception as e:
             error_msg = self._get_error_message_from_exception(e)
@@ -360,16 +360,15 @@ class FireeyeCentralManagementConnector(BaseConnector):
         if resp_json.get("count", 0) <= 0:
             self.debug_print("No container matched")
             return
-        else:
-            try:
-                container_id = resp_json.get("data", [])[0]["id"]
-                self.debug_print(f"Found container id: {container_id}")
-            except Exception as e:
-                error_msg = self._get_error_message_from_exception(e)
-                self.debug_print(f"Container results are not proper: {error_msg}")
-                return
+        try:
+            container_id = resp_json.get("data", [])[0]["id"]
+            self.debug_print(f"Found container id: {container_id}")
+        except Exception as e:
+            error_msg = self._get_error_message_from_exception(e)
+            self.debug_print(f"Container results are not proper: {error_msg}")
+            return
 
-            return container_id
+        return container_id
 
     def _gen_alert_container_title(self, alert):
         """Generate title for the new phantom container based on ticket information"""
@@ -396,8 +395,8 @@ class FireeyeCentralManagementConnector(BaseConnector):
         url = "{0}rest/container/{1}".format(self.get_phantom_base_url(), container_id)
 
         try:
-            requests.post(  # nosemgrep
-                url, data=(json.dumps(updated_container)), verify=False, timeout=60
+            requests.post(
+                url, data=(json.dumps(updated_container)), verify=self._verify_ssl, timeout=60
             )
         except Exception as e:
             err = self._get_error_message_from_exception(e)
