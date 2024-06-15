@@ -271,7 +271,59 @@
             },
             "versions": "EQ(*)",
             "read_only": false,
-            "output": []
+            "output": [
+                {
+                    "data_path": "action_result.parameter.queue_ids",
+                    "data_type": "string",
+                    "column_name": "IDs",
+                    "column_order": 0,
+                    "contains": [
+                        "fireeye cm email queue ids"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.sensor_name",
+                    "data_type": "string",
+                    "column_name": "Sensor Name",
+                    "column_order": 1
+                },
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "column_name": "Status",
+                    "column_order": 2,
+                    "example_values": [
+                        "success",
+                        "failed"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.summary",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                }
+            ]
         },
         {
             "action": "get quarantined email",
