@@ -654,6 +654,42 @@ class FireeyeCentralManagementConnector(BaseConnector):
             )
 
         return action_result.set_status(phantom.APP_SUCCESS)
+    
+    def _handle_release_quarantined_emails(self, param):
+        self.save_progress(
+            "In action handler for: {0}".format(self.get_action_identifier())
+        )
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        sensor_name = param["sensor_name"]
+        queue_ids = param["queue_ids"].split(",")
+        
+        if len(queue_ids) > 100:
+            return action_result.set_status(phantom.APP_ERROR, CM_ERR_TOO_MANY_QUEUE_IDS)
+
+
+        endpoint = CM_EMAILMGMT_QUARANTINE_RELEASE
+
+        params = {"sensorName": sensor_name}
+        headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        }
+
+        payload = {
+            "queue_ids": queue_ids
+        }
+
+        ret_val, response = self._make_rest_call(
+            endpoint, action_result, params=params, headers=headers, method="post", json=payload
+        )
+
+        if phantom.is_fail(ret_val):
+            action_result.add_data(response)
+            return action_result.get_status()
+
+        return action_result.set_status(phantom.APP_SUCCESS)
+
 
     def _handle_get_alert(self, param):
         self.save_progress(
@@ -778,6 +814,9 @@ class FireeyeCentralManagementConnector(BaseConnector):
 
         elif action_id == "list_alerts":
             ret_val = self._handle_list_alerts(param)
+        
+        elif action_id == "release_quarantined_emails":
+            ret_val = self._handle_release_quarantined_emails(param)
 
         return ret_val
 

@@ -21,6 +21,7 @@ CM_AUTH_LOGOUT_URL = CM_BASE_URL + "auth/logout"
 CM_ALERTS_URL = CM_BASE_URL + "alerts"
 CM_ALERT_URL = CM_BASE_URL + "alerts/alert/"
 CM_EMAILMGMT_QUARANTINE = CM_BASE_URL + "emailmgmt/quarantine"
+CM_EMAILMGMT_QUARANTINE_RELEASE = CM_BASE_URL + "emailmgmt/quarantine/release"
 
 CM_PRODUCTS_MAP = {
     "EX": "EMAIL_MPS",
@@ -37,3 +38,4 @@ CM_STATE_FILE_CORRUPT_ERR = "Error occurred while loading the state file due to 
 CM_ERR_INVALID_FIELD = "Please provide a valid value in the '{key}' action parameter"
 CM_ERR_INVALID_URL = "Error connecting to server. Invalid URL."
 CM_ERR_INVALID_SCHEMA = "Error connecting to server. No connection adapters were found."
+CM_ERR_TOO_MANY_QUEUE_IDS = "Only up to 100 queue ids are supported for this action."
