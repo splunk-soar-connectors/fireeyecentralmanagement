@@ -141,7 +141,16 @@ PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
 **sensor_name** |  required  | The sensor display name | string | 
 
 #### Action Output
-No Output  
+DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
+--------- | ---- | -------- | --------------
+action_result.parameter.queue_ids | string |  `fireeye cm email queue ids`  |  
+action_result.parameter.sensor_name | string |  |  
+action_result.status | string |  |   success  failed 
+action_result.data | string |  |  
+action_result.summary | string |  |  
+action_result.message | string |  |  
+summary.total_objects | numeric |  |   1 
+summary.total_objects_successful | numeric |  |   1   
 
 ## action: 'get quarantined email'
 Save an individual quarantined email to vault
