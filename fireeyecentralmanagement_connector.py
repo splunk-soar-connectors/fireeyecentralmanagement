@@ -218,7 +218,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
         # Process each 'Content-Type' of response separately
 
         # Process a json response
-        if "json" in r.headers.get("Content-Type", ""):
+        if "json" in r.headers.get("Content-Type", "") and r.text:
             return self._process_json_response(r, action_result)
 
         # Process an HTML response, Do this no matter what the api talks.
