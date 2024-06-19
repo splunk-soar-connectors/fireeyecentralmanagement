@@ -6,7 +6,7 @@ Connector Version: 1.0.1
 Product Vendor: FireEye  
 Product Name: FireEye CM  
 Product Version Supported (regex): ".\*"  
-Minimum Product Version: 5.0.0  
+Minimum Product Version: 6.2.1  
 
 This app provides investigative actions for FireEye Central Management
 
