@@ -61,23 +61,23 @@ class FireeyeCentralManagementConnector(BaseConnector):
         """
 
         error_code = None
-        error_msg = ERROR_MSG_UNAVAILABLE
+        error_message = ERROR_MESSAGE_UNAVAILABLE
 
         try:
             if hasattr(e, "args"):
                 if len(e.args) > 1:
                     error_code = e.args[0]
-                    error_msg = e.args[1]
+                    error_message = e.args[1]
                 elif len(e.args) == 1:
-                    error_msg = e.args[0]
+                    error_message = e.args[0]
         except:
             pass
 
         if not error_code:
-            error_text = "Error Message: {}".format(error_msg)
+            error_text = "Error Message: {}".format(error_message)
         else:
             error_text = "Error Code: {}. Error Message: {}".format(
-                error_code, error_msg
+                error_code, error_message
             )
 
         return error_text
@@ -117,8 +117,8 @@ class FireeyeCentralManagementConnector(BaseConnector):
                 action_result.set_status(phantom.APP_ERROR, CM_ERROR_INVALID_SCHEMA), None
             )
         except Exception as e:
-            error_msg = self._get_error_message_from_exception(e)
-            return RetVal(action_result.set_status(phantom.APP_ERROR, error_msg), None)
+            error_message = self._get_error_message_from_exception(e)
+            return RetVal(action_result.set_status(phantom.APP_ERROR, error_message), None)
 
         if 200 <= response.status_code < 399:
             try:
@@ -126,10 +126,10 @@ class FireeyeCentralManagementConnector(BaseConnector):
                 self._auth_token = auth_token
                 return RetVal(phantom.APP_SUCCESS, auth_token)
             except KeyError as e:
-                error_msg = self._get_error_message_from_exception(e)
+                error_message = self._get_error_message_from_exception(e)
                 message = (
                     "Could not extract auth token from response header: {msg}".format(
-                        msg=error_msg
+                        msg=error_message
                     )
                 )
                 return RetVal(
@@ -362,8 +362,8 @@ class FireeyeCentralManagementConnector(BaseConnector):
             r = requests.get(url, verify=self._verify_ssl)  # nosemgrep
             resp_json = r.json()
         except Exception as e:
-            error_msg = self._get_error_message_from_exception(e)
-            self.debug_print(f"Unable to query Phantom for containers: {error_msg}")
+            error_message = self._get_error_message_from_exception(e)
+            self.debug_print(f"Unable to query Phantom for containers: {error_message}")
             return
 
         if resp_json.get("count", 0) <= 0:
@@ -373,8 +373,8 @@ class FireeyeCentralManagementConnector(BaseConnector):
             container_id = resp_json.get("data", [])[0]["id"]
             self.debug_print(f"Found container id: {container_id}")
         except Exception as e:
-            error_msg = self._get_error_message_from_exception(e)
-            self.debug_print(f"Container results are not proper: {error_msg}")
+            error_message = self._get_error_message_from_exception(e)
+            self.debug_print(f"Container results are not proper: {error_message}")
             return
 
         return container_id
@@ -551,10 +551,10 @@ class FireeyeCentralManagementConnector(BaseConnector):
             if phantom.is_fail(ret_val):
                 return action_result.get_status()
         except Exception as e:
-            error_msg = self._get_error_message_from_exception(e)
+            error_message = self._get_error_message_from_exception(e)
             return action_result.set_status(
                 phantom.APP_ERROR,
-                "Error retrieving alerts during poll: {}".format(error_msg),
+                "Error retrieving alerts during poll: {}".format(error_message),
             )
 
         self.debug_print(f"Total alerts retrieved {len(alerts)}")
