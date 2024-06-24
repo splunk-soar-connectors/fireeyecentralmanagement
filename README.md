@@ -2,7 +2,7 @@
 # FireEye Central Management
 
 Publisher: Splunk Community  
-Connector Version: 1.0.1  
+Connector Version: 2.0.0  
 Product Vendor: FireEye  
 Product Name: FireEye CM  
 Product Version Supported (regex): ".\*"  
@@ -11,7 +11,7 @@ Minimum Product Version: 6.2.1
 This app provides investigative actions for FireEye Central Management
 
 [comment]: # " File: README.md"
-[comment]: # "  Copyright (c) 2022 Splunk Inc."
+[comment]: # "  Copyright (c) 2022-2024 Splunk Inc."
 [comment]: # "  Licensed under the Apache License, Version 2.0 (the 'License');"
 [comment]: # "  you may not use this file except in compliance with the License."
 [comment]: # "  You may obtain a copy of the License at"
