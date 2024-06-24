@@ -1,6 +1,6 @@
 # File: fireeyecentralmanagement_connector.py
 #
-# Copyright (c) 2022 Splunk Inc.
+# Copyright (c) 2022-2024 Splunk Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import sys
 from datetime import datetime, timedelta
 
 import dateutil
-
 # Phantom App imports
 import phantom.app as phantom
 import phantom.rules as phantom_rules
@@ -62,7 +61,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
         """
 
         error_code = None
-        error_msg = ERR_MSG_UNAVAILABLE
+        error_msg = ERROR_MSG_UNAVAILABLE
 
         try:
             if hasattr(e, "args"):
@@ -110,12 +109,12 @@ class FireeyeCentralManagementConnector(BaseConnector):
         except requests.exceptions.InvalidURL as e:
             self.debug_print(self._get_error_message_from_exception(e))
             return RetVal(
-                action_result.set_status(phantom.APP_ERROR, CM_ERR_INVALID_URL), None
+                action_result.set_status(phantom.APP_ERROR, CM_ERROR_INVALID_URL), None
             )
         except requests.exceptions.InvalidSchema as e:
             self.debug_print(self._get_error_message_from_exception(e))
             return RetVal(
-                action_result.set_status(phantom.APP_ERROR, CM_ERR_INVALID_SCHEMA), None
+                action_result.set_status(phantom.APP_ERROR, CM_ERROR_INVALID_SCHEMA), None
             )
         except Exception as e:
             error_msg = self._get_error_message_from_exception(e)
@@ -523,7 +522,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
             ]
             if not product_filter_list:
                 return action_result.set_status(
-                    phantom.APP_ERROR, CM_ERR_INVALID_FIELD.format(key="product filter")
+                    phantom.APP_ERROR, CM_ERROR_INVALID_FIELD.format(key="product filter")
                 )
 
             for product in product_filter_list:
@@ -686,7 +685,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
 
         if len(queue_ids) > 100:
             return action_result.set_status(
-                phantom.APP_ERROR, CM_ERR_TOO_MANY_QUEUE_IDS
+                phantom.APP_ERROR, CM_ERROR_TOO_MANY_QUEUE_IDS
             )
 
         endpoint = CM_EMAILMGMT_QUARANTINE_RELEASE
@@ -757,7 +756,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
         url = param.get("url")
 
         if start_time and end_time:
-            return action_result.set_status(phantom.APP_ERROR, ERR_START_AND_END_TIME)
+            return action_result.set_status(phantom.APP_ERROR, ERROR_START_AND_END_TIME)
 
         if not start_time and not end_time:
             end_time = datetime.utcnow().astimezone().isoformat(timespec="milliseconds")
@@ -850,7 +849,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
         if not isinstance(self._state, dict):
             self.debug_print("Resetting the state file with the default format")
             self._state = {"app_version": self.get_app_json().get("app_version")}
-            return self.set_status(phantom.APP_ERROR, CM_STATE_FILE_CORRUPT_ERR)
+            return self.set_status(phantom.APP_ERROR, CM_STATE_FILE_CORRUPT_ERROR)
 
         config = self.get_config()
 
@@ -860,7 +859,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
         self._password = config["password"]
         self._client_token = config.get("client_token")
         self._product_filter = config.get("product_filter")
-        self._include_riskware = config.get("include_riskware")
+        self._include_riskware = config.get("include_riskware", False)
 
         return phantom.APP_SUCCESS
 
@@ -887,12 +886,14 @@ def main():
     argparser.add_argument("input_test_json", help="Input Test JSON file")
     argparser.add_argument("-u", "--username", help="username", required=False)
     argparser.add_argument("-p", "--password", help="password", required=False)
+    argparser.add_argument('-v', '--verify', action='store_true', help='verify', required=False, default=False)
 
     args = argparser.parse_args()
     session_id = None
 
     username = args.username
     password = args.password
+    verify = args.verify
 
     if username is not None and password is None:
 
@@ -922,7 +923,7 @@ def main():
 
             print("Logging into Platform to get the session id")
             r2 = requests.post(  # nosemgrep
-                login_url, verify=False, data=data, headers=headers, timeout=60
+                login_url, verify=verify, data=data, headers=headers, timeout=60
             )
             session_id = r2.cookies["sessionid"]
         except Exception as e:

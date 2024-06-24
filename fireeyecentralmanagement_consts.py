@@ -1,6 +1,6 @@
 # File: fireeyecentralmanagement_consts.py
 #
-# Copyright (c) 2022 Splunk Inc.
+# Copyright (c) 2022-2024 Splunk Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -30,12 +30,12 @@ CM_PRODUCTS_MAP = {
 }
 
 # Constants relating to 'get_error_message_from_exception'
-ERR_MSG_UNAVAILABLE = "Error message unavailable. Please check the asset configuration and|or action parameters."
-ERR_START_AND_END_TIME = "Cannot specify both start time and end time. Please remove either one."
+ERROR_MSG_UNAVAILABLE = "Error message unavailable. Please check the asset configuration and|or action parameters."
+ERROR_START_AND_END_TIME = "Cannot specify both start time and end time. Please remove either one."
 
-CM_STATE_FILE_CORRUPT_ERR = "Error occurred while loading the state file due to its unexpected format."\
+CM_STATE_FILE_CORRUPT_ERROR = "Error occurred while loading the state file due to its unexpected format."\
      "Resetting the state file with the default format. Please try again."
-CM_ERR_INVALID_FIELD = "Please provide a valid value in the '{key}' action parameter"
-CM_ERR_INVALID_URL = "Error connecting to server. Invalid URL."
-CM_ERR_INVALID_SCHEMA = "Error connecting to server. No connection adapters were found."
-CM_ERR_TOO_MANY_QUEUE_IDS = "Only up to 100 queue ids are supported for this action."
+CM_ERROR_INVALID_FIELD = "Please provide a valid value in the '{key}' action parameter"
+CM_ERROR_INVALID_URL = "Error connecting to server. Invalid URL."
+CM_ERROR_INVALID_SCHEMA = "Error connecting to server. No connection adapters were found."
+CM_ERROR_TOO_MANY_QUEUE_IDS = "Only up to 100 queue ids are supported for this action."
