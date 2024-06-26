@@ -2,7 +2,7 @@
 # FireEye Central Management
 
 Publisher: Splunk Community  
-Connector Version: 2.0.0  
+Connector Version: 1.1.0  
 Product Vendor: FireEye  
 Product Name: FireEye CM  
 Product Version Supported (regex): ".\*"  
