@@ -1,6 +1,6 @@
 # File: fireeyecentralmanagement_connector.py
 #
-# Copyright (c) 2022-2024 Splunk Inc.
+# Copyright (c) 2022-2025 Splunk Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,13 +14,13 @@
 # and limitations under the License.
 
 # Python 3 Compatibility imports
-from __future__ import print_function, unicode_literals
 
 import json
 import sys
 from datetime import datetime, timedelta
 
 import dateutil
+
 # Phantom App imports
 import phantom.app as phantom
 import phantom.rules as phantom_rules
@@ -32,6 +32,7 @@ from phantom.vault import Vault
 
 from fireeyecentralmanagement_consts import *
 
+
 CM_PRODUCTS_MAP_REVERSE = {value: key for key, value in CM_PRODUCTS_MAP.items()}
 
 
@@ -42,7 +43,7 @@ class RetVal(tuple):
 
 class FireeyeCentralManagementConnector(BaseConnector):
     def __init__(self):
-        super(FireeyeCentralManagementConnector, self).__init__()
+        super().__init__()
 
         self._state = None
 
@@ -74,11 +75,9 @@ class FireeyeCentralManagementConnector(BaseConnector):
             pass
 
         if not error_code:
-            error_text = "Error Message: {}".format(error_message)
+            error_text = f"Error Message: {error_message}"
         else:
-            error_text = "Error Code: {}. Error Message: {}".format(
-                error_code, error_message
-            )
+            error_text = f"Error Code: {error_code}. Error Message: {error_message}"
 
         return error_text
 
@@ -89,15 +88,13 @@ class FireeyeCentralManagementConnector(BaseConnector):
         return RetVal(
             action_result.set_status(
                 phantom.APP_ERROR,
-                "Status Code {}. Empty response and no information in the header".format(
-                    response.status_code
-                ),
+                f"Status Code {response.status_code}. Empty response and no information in the header",
             ),
             None,
         )
 
     def get_auth_token(self, action_result):
-        login_endpoint = "{}{}".format(self._base_url, CM_AUTH_LOGIN_URL)
+        login_endpoint = f"{self._base_url}{CM_AUTH_LOGIN_URL}"
 
         try:
             response = requests.post(
@@ -108,14 +105,10 @@ class FireeyeCentralManagementConnector(BaseConnector):
             )
         except requests.exceptions.InvalidURL as e:
             self.debug_print(self._get_error_message_from_exception(e))
-            return RetVal(
-                action_result.set_status(phantom.APP_ERROR, CM_ERROR_INVALID_URL), None
-            )
+            return RetVal(action_result.set_status(phantom.APP_ERROR, CM_ERROR_INVALID_URL), None)
         except requests.exceptions.InvalidSchema as e:
             self.debug_print(self._get_error_message_from_exception(e))
-            return RetVal(
-                action_result.set_status(phantom.APP_ERROR, CM_ERROR_INVALID_SCHEMA), None
-            )
+            return RetVal(action_result.set_status(phantom.APP_ERROR, CM_ERROR_INVALID_SCHEMA), None)
         except Exception as e:
             error_message = self._get_error_message_from_exception(e)
             return RetVal(action_result.set_status(phantom.APP_ERROR, error_message), None)
@@ -127,29 +120,21 @@ class FireeyeCentralManagementConnector(BaseConnector):
                 return RetVal(phantom.APP_SUCCESS, auth_token)
             except KeyError as e:
                 error_message = self._get_error_message_from_exception(e)
-                message = (
-                    "Could not extract auth token from response header: {msg}".format(
-                        msg=error_message
-                    )
-                )
-                return RetVal(
-                    action_result.set_status(phantom.APP_ERROR, message), None
-                )
+                message = f"Could not extract auth token from response header: {error_message}"
+                return RetVal(action_result.set_status(phantom.APP_ERROR, message), None)
 
         message = "Could not retrieve auth token"
         return RetVal(action_result.set_status(phantom.APP_ERROR, message), None)
 
     def release_auth_token(self):
-        logout_endpoint = "{}{}".format(self._base_url, CM_AUTH_LOGOUT_URL)
+        logout_endpoint = f"{self._base_url}{CM_AUTH_LOGOUT_URL}"
 
         headers = {CM_TOKEN_HEADER: self._auth_token}
 
         if self._client_token:
             headers[CM_CLIENT_TOKEN_HEADER] = self._client_token
 
-        response = requests.post(
-            logout_endpoint, headers=headers, verify=self._verify_ssl, timeout=60
-        )
+        response = requests.post(logout_endpoint, headers=headers, verify=self._verify_ssl, timeout=60)
 
         if response.status_code == 204:
             return phantom.APP_SUCCESS
@@ -172,9 +157,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
         except:
             error_text = "Cannot parse error details"
 
-        message = "Status Code: {0}. Data from server: {1}".format(
-            status_code, error_text
-        )
+        message = f"Status Code: {status_code}. Data from server: {error_text}"
 
         message = message.replace("{", "{{").replace("}", "}}")
         return RetVal(action_result.set_status(phantom.APP_ERROR, message), None)
@@ -188,7 +171,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
             return RetVal(
                 action_result.set_status(
                     phantom.APP_ERROR,
-                    "Unable to parse JSON response. Error: {0}".format(err),
+                    f"Unable to parse JSON response. Error: {err}",
                 ),
                 None,
             )
@@ -198,22 +181,17 @@ class FireeyeCentralManagementConnector(BaseConnector):
             return RetVal(phantom.APP_SUCCESS, resp_json)
 
         # You should process the error returned in the json
-        message = "Error from server. Status Code: {0} Data from server: {1}".format(
-            r.status_code, r.text.replace("{", "{{").replace("}", "}}")
-        )
+        message = "Error from server. Status Code: {} Data from server: {}".format(r.status_code, r.text.replace("{", "{{").replace("}", "}}"))
 
         return RetVal(action_result.set_status(phantom.APP_ERROR, message), None)
 
     def _process_file_response(self, r, action_result):
-
         # Please specify the status codes here
         if 200 <= r.status_code < 399:
             return RetVal(phantom.APP_SUCCESS, r)
 
         # You should process the error returned in the json
-        message = "Error from server. Status Code: {0} Data from server: {1}".format(
-            r.status_code, r.text.replace("{", "{{").replace("}", "}}")
-        )
+        message = "Error from server. Status Code: {} Data from server: {}".format(r.status_code, r.text.replace("{", "{{").replace("}", "}}"))
 
         return RetVal(action_result.set_status(phantom.APP_ERROR, message), None)
 
@@ -245,7 +223,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
             return self._process_file_response(r, action_result)
 
         # everything else is actually an error at this point
-        message = "Can't process response from server. Status Code: {0} Data from server: {1}".format(
+        message = "Can't process response from server. Status Code: {} Data from server: {}".format(
             r.status_code, r.text.replace("{", "{{").replace("}", "}}")
         )
 
@@ -260,14 +238,12 @@ class FireeyeCentralManagementConnector(BaseConnector):
             request_func = getattr(requests, method)
         except AttributeError:
             return RetVal(
-                action_result.set_status(
-                    phantom.APP_ERROR, "Invalid method: {0}".format(method)
-                ),
+                action_result.set_status(phantom.APP_ERROR, f"Invalid method: {method}"),
                 resp_json,
             )
 
         # Create a URL to connect to
-        url = "{}{}".format(self._base_url, endpoint)
+        url = f"{self._base_url}{endpoint}"
 
         if not self._auth_token:
             ret_val, token = self.get_auth_token(action_result)
@@ -298,7 +274,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
             return RetVal(
                 action_result.set_status(
                     phantom.APP_ERROR,
-                    "Error Connecting to server. Details: {0}".format(err),
+                    f"Error Connecting to server. Details: {err}",
                 ),
                 resp_json,
             )
@@ -336,9 +312,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
         if self._include_riskware:
             params["include_riskware"] = "true"
 
-        ret_val, response = self._make_rest_call(
-            CM_ALERTS_URL, action_result, params=params, headers=None
-        )
+        ret_val, response = self._make_rest_call(CM_ALERTS_URL, action_result, params=params, headers=None)
 
         if phantom.is_fail(ret_val) or "alert" not in response:
             action_result_message = action_result.get_message()
@@ -355,9 +329,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
 
         alert_id = alert["id"]
 
-        url = '{0}rest/container?_filter_source_data_identifier="{1}"&_filter_asset={2}'.format(
-            self.get_phantom_base_url(), alert_id, self.get_asset_id()
-        )
+        url = f'{self.get_phantom_base_url()}rest/container?_filter_source_data_identifier="{alert_id}"&_filter_asset={self.get_asset_id()}'
         try:
             r = requests.get(url, verify=self._verify_ssl)  # nosemgrep
             resp_json = r.json()
@@ -385,7 +357,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
         primary = alert["id"]
         secondary = alert.get("name")
         tertiary = CM_PRODUCTS_MAP_REVERSE.get(alert["product"], alert["product"])
-        return "{} - {} - {}".format(primary, secondary, tertiary)
+        return f"{primary} - {secondary} - {tertiary}"
 
     def _create_alert_container_json(self, alert):
         """Creates a new phantom container based on alert information"""
@@ -399,9 +371,8 @@ class FireeyeCentralManagementConnector(BaseConnector):
         return alert_container
 
     def _update_alert_container(self, container_id, alert):
-
         updated_container = self._create_alert_container_json(alert)
-        url = "{0}rest/container/{1}".format(self.get_phantom_base_url(), container_id)
+        url = f"{self.get_phantom_base_url()}rest/container/{container_id}"
 
         try:
             requests.post(
@@ -415,7 +386,6 @@ class FireeyeCentralManagementConnector(BaseConnector):
             self.debug_print(f"Error while updating the container: {err}")
 
     def _create_alert_artifacts(self, alert, container_id):
-
         artifacts = []
 
         product = CM_PRODUCTS_MAP_REVERSE.get(alert["product"], alert["product"])
@@ -480,7 +450,6 @@ class FireeyeCentralManagementConnector(BaseConnector):
         return artifact
 
     def _save_alert_container(self, action_result, alert):
-
         container_id = self._search_alert_container(alert)
 
         if container_id:
@@ -503,9 +472,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
             return RetVal(phantom.APP_SUCCESS)
 
     def _handle_on_poll(self, param):
-        self.save_progress(
-            "In action handler for: {0}".format(self.get_action_identifier())
-        )
+        self.save_progress(f"In action handler for: {self.get_action_identifier()}")
         action_result = self.add_action_result(ActionResult(dict(param)))
 
         container_count = param.get("container_count", "")
@@ -515,15 +482,9 @@ class FireeyeCentralManagementConnector(BaseConnector):
         product_filter = []
 
         if self._product_filter:
-            product_filter_list = [
-                value.strip()
-                for value in self._product_filter.split(",")
-                if value.strip()
-            ]
+            product_filter_list = [value.strip() for value in self._product_filter.split(",") if value.strip()]
             if not product_filter_list:
-                return action_result.set_status(
-                    phantom.APP_ERROR, CM_ERROR_INVALID_FIELD.format(key="product filter")
-                )
+                return action_result.set_status(phantom.APP_ERROR, CM_ERROR_INVALID_FIELD.format(key="product filter"))
 
             for product in product_filter_list:
                 product_filter.append(CM_PRODUCTS_MAP.get(product, product))
@@ -544,17 +505,15 @@ class FireeyeCentralManagementConnector(BaseConnector):
         alerts = []
 
         try:
-            self.debug_print("Retrieving alerts last_run={}".format(last_run))
-            ret_val, alerts = self._retrieve_alerts(
-                action_result, last_run, container_count
-            )
+            self.debug_print(f"Retrieving alerts last_run={last_run}")
+            ret_val, alerts = self._retrieve_alerts(action_result, last_run, container_count)
             if phantom.is_fail(ret_val):
                 return action_result.get_status()
         except Exception as e:
             error_message = self._get_error_message_from_exception(e)
             return action_result.set_status(
                 phantom.APP_ERROR,
-                "Error retrieving alerts during poll: {}".format(error_message),
+                f"Error retrieving alerts during poll: {error_message}",
             )
 
         self.debug_print(f"Total alerts retrieved {len(alerts)}")
@@ -564,9 +523,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
             for alert in alerts:
                 if self._product_filter:
                     if alert.get("product", []) not in product_filter:
-                        self.debug_print(
-                            "Received alert for product which is not included in product filter, ignoring.."
-                        )
+                        self.debug_print("Received alert for product which is not included in product filter, ignoring..")
                         continue
                 self._save_alert_container(action_result, alert)
         except Exception as e:
@@ -578,9 +535,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
         return action_result.set_status(phantom.APP_SUCCESS)
 
     def _handle_list_quarantined_emails(self, param):
-        self.save_progress(
-            "In action handler for: {0}".format(self.get_action_identifier())
-        )
+        self.save_progress(f"In action handler for: {self.get_action_identifier()}")
         action_result = self.add_action_result(ActionResult(dict(param)))
 
         start_time = param.get("start_time")
@@ -592,9 +547,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
         params = {}
 
         if (start_time and not end_time) or (end_time and not start_time):
-            return action_result.set_status(
-                phantom.APP_ERROR, "Must provide both start and end time filters"
-            )
+            return action_result.set_status(phantom.APP_ERROR, "Must provide both start and end time filters")
 
         if start_time:
             params["start_time"] = start_time
@@ -608,9 +561,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
             params["appliance_id"] = appliance_id
 
         # make rest call
-        ret_val, emails = self._make_rest_call(
-            CM_EMAILMGMT_QUARANTINE, action_result, params=params
-        )
+        ret_val, emails = self._make_rest_call(CM_EMAILMGMT_QUARANTINE, action_result, params=params)
 
         if phantom.is_fail(ret_val):
             return action_result.get_status()
@@ -625,30 +576,26 @@ class FireeyeCentralManagementConnector(BaseConnector):
         return action_result.set_status(phantom.APP_SUCCESS)
 
     def _handle_get_quarantined_email(self, param):
-        self.save_progress(
-            "In action handler for: {0}".format(self.get_action_identifier())
-        )
+        self.save_progress(f"In action handler for: {self.get_action_identifier()}")
         action_result = self.add_action_result(ActionResult(dict(param)))
 
         id = param["queue_id"]
         sensor_name = param["sensor_name"]
 
-        endpoint = "{}/{}".format(CM_EMAILMGMT_QUARANTINE, id)
+        endpoint = f"{CM_EMAILMGMT_QUARANTINE}/{id}"
 
         params = {"sensorName": sensor_name}
 
         headers = {"Accept": "application/octet-stream"}
 
-        ret_val, response = self._make_rest_call(
-            endpoint, action_result, params=params, headers=headers
-        )
+        ret_val, response = self._make_rest_call(endpoint, action_result, params=params, headers=headers)
 
         if phantom.is_fail(ret_val):
             return action_result.get_status()
 
         vault_tmp_dir = Vault.get_vault_tmp_dir()
-        local_dir = "{}/".format(vault_tmp_dir)
-        file_name = "{}.eml".format(id)
+        local_dir = f"{vault_tmp_dir}/"
+        file_name = f"{id}.eml"
 
         with open(local_dir + file_name, "wb") as f_out:
             for chunk in response.iter_content(chunk_size=1024):
@@ -658,7 +605,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
         try:
             success, message, vault_id = phantom_rules.vault_add(
                 container=self.get_container_id(),
-                file_location="{}{}".format(local_dir, file_name),
+                file_location=f"{local_dir}{file_name}",
                 file_name=file_name,
                 metadata={"mime_type": "message/rfc822"},
             )
@@ -669,24 +616,20 @@ class FireeyeCentralManagementConnector(BaseConnector):
             err = self._get_error_message_from_exception(e)
             return action_result.set_status(
                 phantom.APP_ERROR,
-                "Unable to store file in Phantom Vault. {0}".format(err),
+                f"Unable to store file in Phantom Vault. {err}",
             )
 
         return action_result.set_status(phantom.APP_SUCCESS)
 
     def _handle_release_quarantined_emails(self, param):
-        self.save_progress(
-            "In action handler for: {0}".format(self.get_action_identifier())
-        )
+        self.save_progress(f"In action handler for: {self.get_action_identifier()}")
         action_result = self.add_action_result(ActionResult(dict(param)))
 
         sensor_name = param["sensor_name"]
         queue_ids = param["queue_ids"].split(",")
 
         if len(queue_ids) > 100:
-            return action_result.set_status(
-                phantom.APP_ERROR, CM_ERROR_TOO_MANY_QUEUE_IDS
-            )
+            return action_result.set_status(phantom.APP_ERROR, CM_ERROR_TOO_MANY_QUEUE_IDS)
 
         endpoint = CM_EMAILMGMT_QUARANTINE_RELEASE
 
@@ -711,18 +654,14 @@ class FireeyeCentralManagementConnector(BaseConnector):
         return action_result.set_status(phantom.APP_SUCCESS)
 
     def _handle_get_alert(self, param):
-        self.save_progress(
-            "In action handler for: {0}".format(self.get_action_identifier())
-        )
+        self.save_progress(f"In action handler for: {self.get_action_identifier()}")
         action_result = self.add_action_result(ActionResult(dict(param)))
 
         id = param["id"]
 
-        endpoint = "{}{}".format(CM_ALERT_URL, id)
+        endpoint = f"{CM_ALERT_URL}{id}"
 
-        ret_val, response = self._make_rest_call(
-            endpoint, action_result, params=None, headers=None
-        )
+        ret_val, response = self._make_rest_call(endpoint, action_result, params=None, headers=None)
 
         if phantom.is_fail(ret_val):
             return action_result.get_status()
@@ -734,9 +673,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
         return action_result.set_status(phantom.APP_SUCCESS)
 
     def _handle_list_alerts(self, param):
-        self.save_progress(
-            "In action handler for: {0}".format(self.get_action_identifier())
-        )
+        self.save_progress(f"In action handler for: {self.get_action_identifier()}")
         action_result = self.add_action_result(ActionResult(dict(param)))
 
         duration = param["duration"]
@@ -791,9 +728,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
         if self._include_riskware:
             params["include_riskware"] = "true"
 
-        ret_val, response = self._make_rest_call(
-            CM_ALERTS_URL, action_result, params=params, headers=None
-        )
+        ret_val, response = self._make_rest_call(CM_ALERTS_URL, action_result, params=params, headers=None)
 
         if phantom.is_fail(ret_val):
             return action_result.get_status()
@@ -842,9 +777,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
     def initialize(self):
         self._state = self.load_state()
 
-        self._this_run = (
-            datetime.utcnow().astimezone().isoformat(timespec="milliseconds")
-        )
+        self._this_run = datetime.utcnow().astimezone().isoformat(timespec="milliseconds")
 
         if not isinstance(self._state, dict):
             self.debug_print("Resetting the state file with the default format")
@@ -886,7 +819,7 @@ def main():
     argparser.add_argument("input_test_json", help="Input Test JSON file")
     argparser.add_argument("-u", "--username", help="username", required=False)
     argparser.add_argument("-p", "--password", help="password", required=False)
-    argparser.add_argument('-v', '--verify', action='store_true', help='verify', required=False, default=False)
+    argparser.add_argument("-v", "--verify", action="store_true", help="verify", required=False, default=False)
 
     args = argparser.parse_args()
     session_id = None
@@ -896,7 +829,6 @@ def main():
     verify = args.verify
 
     if username is not None and password is None:
-
         # User specified a username but not a password, so ask
         import getpass
 
@@ -904,9 +836,7 @@ def main():
 
     if username and password:
         try:
-            login_url = (
-                FireeyeCentralManagementConnector._get_phantom_base_url() + "/login"
-            )
+            login_url = FireeyeCentralManagementConnector._get_phantom_base_url() + "/login"
 
             print("Accessing the Login page")
             r = requests.get(login_url, timeout=60)

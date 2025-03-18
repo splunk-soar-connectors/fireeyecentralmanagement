@@ -1,6 +1,6 @@
 # File: fireeyecentralmanagement_consts.py
 #
-# Copyright (c) 2022-2024 Splunk Inc.
+# Copyright (c) 2022-2025 Splunk Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,18 +23,16 @@ CM_ALERT_URL = CM_BASE_URL + "alerts/alert/"
 CM_EMAILMGMT_QUARANTINE = CM_BASE_URL + "emailmgmt/quarantine"
 CM_EMAILMGMT_QUARANTINE_RELEASE = CM_BASE_URL + "emailmgmt/quarantine/release"
 
-CM_PRODUCTS_MAP = {
-    "EX": "EMAIL_MPS",
-    "NX": "WEB_MPS",
-    "AX": "MAS"
-}
+CM_PRODUCTS_MAP = {"EX": "EMAIL_MPS", "NX": "WEB_MPS", "AX": "MAS"}
 
 # Constants relating to 'get_error_message_from_exception'
 ERROR_MESSAGE_UNAVAILABLE = "Error message unavailable. Please check the asset configuration and|or action parameters."
 ERROR_START_AND_END_TIME = "Cannot specify both start time and end time. Please remove either one."
 
-CM_STATE_FILE_CORRUPT_ERROR = "Error occurred while loading the state file due to its unexpected format."\
-     "Resetting the state file with the default format. Please try again."
+CM_STATE_FILE_CORRUPT_ERROR = (
+    "Error occurred while loading the state file due to its unexpected format."
+    "Resetting the state file with the default format. Please try again."
+)
 CM_ERROR_INVALID_FIELD = "Please provide a valid value in the '{key}' action parameter"
 CM_ERROR_INVALID_URL = "Error connecting to server. Invalid URL."
 CM_ERROR_INVALID_SCHEMA = "Error connecting to server. No connection adapters were found."
