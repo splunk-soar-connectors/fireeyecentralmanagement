@@ -10,7 +10,7 @@
     "python_version": "3",
     "product_version_regex": ".*",
     "publisher": "Splunk Community",
-    "license": "Copyright (c) 2022-2024 Splunk Inc.",
+    "license": "Copyright (c) 2022-2025 Splunk Inc.",
     "app_version": "1.1.0",
     "utctime_updated": "2022-01-27T10:35:50.000000Z",
     "package_name": "phantom_fireeyecentralmanagement",
@@ -825,7 +825,7 @@
             "versions": "EQ(*)"
         }
     ],
-    "pip_dependencies":{
+    "pip_dependencies": {
         "wheel": []
     }
 }
