@@ -334,7 +334,7 @@
             "identifier": "get_quarantined_email",
             "description": "Save an individual quarantined email to vault",
             "type": "investigate",
-            "read_only": true,
+            "read_only": false,
             "parameters": {
                 "queue_id": {
                     "description": "Queue ID of the quarantined email",
