@@ -787,7 +787,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
         config = self.get_config()
 
         self._base_url = config["server_url"].rstrip("/")
-        self._verify_ssl = config.get("verify_ssl", False)
+        self._verify_ssl = config.get("verify_ssl", True)
         self._username = config["username"]
         self._password = config["password"]
         self._client_token = config.get("client_token")

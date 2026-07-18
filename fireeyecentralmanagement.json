@@ -53,7 +53,7 @@
         "verify_ssl": {
             "description": "Verify SSL Certificate",
             "data_type": "boolean",
-            "default": false,
+            "default": true,
             "order": 4
         },
         "product_filter": {
