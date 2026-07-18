@@ -102,7 +102,7 @@
                   <td class="widget-td">{{ alert.product }}</td>
                   <td class="widget-td">
                     <a href="javascript:;"
-                       onclick="context_menu(this, [{'contains': ['fireeye cm alert id'], 'value': '{{ alert.id }}' }], 0, {{ container.id }}, null, false);">
+                       onclick="context_menu(this, [{'contains': ['fireeye cm alert id'], 'value': '{{ alert.id|escapejs }}' }], 0, {{ container.id }}, null, false);">
                       {{ alert.id }}
                       &nbsp;
                       <span class="fa fa-caret-down" style="font-size: smaller;"></span>
