@@ -1,6 +1,6 @@
 # File: fireeyecentralmanagement_connector.py
 #
-# Copyright (c) 2022-2025 Splunk Inc.
+# Copyright (c) 2022-2026 Splunk Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,8 +16,11 @@
 # Python 3 Compatibility imports
 
 import json
+import os
 import sys
+import tempfile
 from datetime import datetime, timedelta
+from urllib.parse import quote
 
 import dateutil
 
@@ -579,10 +582,10 @@ class FireeyeCentralManagementConnector(BaseConnector):
         self.save_progress(f"In action handler for: {self.get_action_identifier()}")
         action_result = self.add_action_result(ActionResult(dict(param)))
 
-        id = param["queue_id"]
+        queue_id = str(param["queue_id"])
         sensor_name = param["sensor_name"]
 
-        endpoint = f"{CM_EMAILMGMT_QUARANTINE}/{id}"
+        endpoint = f"{CM_EMAILMGMT_QUARANTINE}/{quote(queue_id, safe='')}"
 
         params = {"sensorName": sensor_name}
 
@@ -593,22 +596,27 @@ class FireeyeCentralManagementConnector(BaseConnector):
         if phantom.is_fail(ret_val):
             return action_result.get_status()
 
-        vault_tmp_dir = Vault.get_vault_tmp_dir()
-        local_dir = f"{vault_tmp_dir}/"
-        file_name = f"{id}.eml"
-
-        with open(local_dir + file_name, "wb") as f_out:
-            for chunk in response.iter_content(chunk_size=1024):
-                if chunk:
-                    f_out.write(chunk)
+        display_id = os.path.basename(queue_id)
+        if not display_id or not display_id.strip("."):
+            display_id = "quarantined_email"
+        file_name = f"{display_id}.eml"
+        temp_file_path = None
 
         try:
+            with tempfile.NamedTemporaryFile(dir=Vault.get_vault_tmp_dir(), suffix=".eml", delete=False) as f_out:
+                temp_file_path = f_out.name
+                for chunk in response.iter_content(chunk_size=1024):
+                    if chunk:
+                        f_out.write(chunk)
+
             success, message, vault_id = phantom_rules.vault_add(
                 container=self.get_container_id(),
-                file_location=f"{local_dir}{file_name}",
+                file_location=temp_file_path,
                 file_name=file_name,
                 metadata={"mime_type": "message/rfc822"},
             )
+            if not success:
+                return action_result.set_status(phantom.APP_ERROR, f"Unable to store file in Phantom Vault. {message}")
             summary = action_result.update_summary({})
             summary["vault_id"] = vault_id
 
@@ -618,6 +626,9 @@ class FireeyeCentralManagementConnector(BaseConnector):
                 phantom.APP_ERROR,
                 f"Unable to store file in Phantom Vault. {err}",
             )
+        finally:
+            if temp_file_path and os.path.exists(temp_file_path):
+                os.unlink(temp_file_path)
 
         return action_result.set_status(phantom.APP_SUCCESS)
 
@@ -787,7 +798,7 @@ class FireeyeCentralManagementConnector(BaseConnector):
         config = self.get_config()
 
         self._base_url = config["server_url"].rstrip("/")
-        self._verify_ssl = config.get("verify_ssl", False)
+        self._verify_ssl = config.get("verify_ssl", True)
         self._username = config["username"]
         self._password = config["password"]
         self._client_token = config.get("client_token")

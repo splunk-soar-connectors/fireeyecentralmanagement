@@ -11,7 +11,7 @@
 {% block widget_content %}
   <!-- Main Start Block -->
   <!-- File: fireeyecentralmanagement_list_alerts.html
-  Copyright (c) 2022-2025 Splunk Inc.
+  Copyright (c) 2022-2026 Splunk Inc.
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -102,7 +102,7 @@
                   <td class="widget-td">{{ alert.product }}</td>
                   <td class="widget-td">
                     <a href="javascript:;"
-                       onclick="context_menu(this, [{'contains': ['fireeye cm alert id'], 'value': '{{ alert.id }}' }], 0, {{ container.id }}, null, false);">
+                       onclick="context_menu(this, [{'contains': ['fireeye cm alert id'], 'value': '{{ alert.id|escapejs }}' }], 0, {{ container.id }}, null, false);">
                       {{ alert.id }}
                       &nbsp;
                       <span class="fa fa-caret-down" style="font-size: smaller;"></span>

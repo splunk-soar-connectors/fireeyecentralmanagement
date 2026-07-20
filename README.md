@@ -1,9 +1,9 @@
 # FireEye Central Management
 
-Publisher: Splunk Community \
-Connector Version: 1.1.0 \
-Product Vendor: FireEye \
-Product Name: FireEye CM \
+Publisher: Splunk Community <br>
+Connector Version: 1.1.0 <br>
+Product Vendor: FireEye <br>
+Product Name: FireEye CM <br>
 Minimum Product Version: 6.2.1
 
 This app provides investigative actions for FireEye Central Management
@@ -43,19 +43,19 @@ VARIABLE | REQUIRED | TYPE | DESCRIPTION
 
 ### Supported Actions
 
-[test connectivity](#action-test-connectivity) - Validate the asset configuration for connectivity using supplied configuration \
-[on poll](#action-on-poll) - Ingest alerts from CM \
-[list quarantined emails](#action-list-quarantined-emails) - Retrieves information about quarantined emails \
-[release quarantined emails](#action-release-quarantined-emails) - Releases and deletes quarantined emails \
-[get quarantined email](#action-get-quarantined-email) - Save an individual quarantined email to vault \
-[get alert](#action-get-alert) - Retrive details about an individual alert \
+[test connectivity](#action-test-connectivity) - Validate the asset configuration for connectivity using supplied configuration <br>
+[on poll](#action-on-poll) - Ingest alerts from CM <br>
+[list quarantined emails](#action-list-quarantined-emails) - Retrieves information about quarantined emails <br>
+[release quarantined emails](#action-release-quarantined-emails) - Releases and deletes quarantined emails <br>
+[get quarantined email](#action-get-quarantined-email) - Save an individual quarantined email to vault <br>
+[get alert](#action-get-alert) - Retrive details about an individual alert <br>
 [list alerts](#action-list-alerts) - Retrieve alerts based on provided filters
 
 ## action: 'test connectivity'
 
 Validate the asset configuration for connectivity using supplied configuration
 
-Type: **test** \
+Type: **test** <br>
 Read only: **True**
 
 #### Action Parameters
@@ -70,7 +70,7 @@ No Output
 
 Ingest alerts from CM
 
-Type: **ingest** \
+Type: **ingest** <br>
 Read only: **True**
 
 #### Action Parameters
@@ -91,7 +91,7 @@ No Output
 
 Retrieves information about quarantined emails
 
-Type: **investigate** \
+Type: **investigate** <br>
 Read only: **True**
 
 #### Action Parameters
@@ -129,7 +129,7 @@ summary.total_objects_successful | numeric | | 1 |
 
 Releases and deletes quarantined emails
 
-Type: **generic** \
+Type: **generic** <br>
 Read only: **False**
 
 #### Action Parameters
@@ -156,8 +156,8 @@ summary.total_objects_successful | numeric | | 1 |
 
 Save an individual quarantined email to vault
 
-Type: **investigate** \
-Read only: **True**
+Type: **investigate** <br>
+Read only: **False**
 
 #### Action Parameters
 
@@ -183,7 +183,7 @@ summary.total_objects_successful | numeric | | 1 |
 
 Retrive details about an individual alert
 
-Type: **investigate** \
+Type: **investigate** <br>
 Read only: **True**
 
 #### Action Parameters
@@ -216,7 +216,7 @@ action_result.data.\*.malicious | string | | |
 
 Retrieve alerts based on provided filters
 
-Type: **investigate** \
+Type: **investigate** <br>
 Read only: **True**
 
 #### Action Parameters
@@ -275,7 +275,7 @@ ______________________________________________________________________
 
 Auto-generated Splunk SOAR Connector documentation.
 
-Copyright 2025 Splunk Inc.
+Copyright 2026 Splunk Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
