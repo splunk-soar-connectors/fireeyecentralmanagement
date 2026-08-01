@@ -20,7 +20,6 @@ import os
 import sys
 import tempfile
 from datetime import datetime, timedelta
-from urllib.parse import quote
 
 import dateutil
 
@@ -34,6 +33,7 @@ from phantom.base_connector import BaseConnector
 from phantom.vault import Vault
 
 from fireeyecentralmanagement_consts import *
+from fireeyecentralmanagement_path import build_quarantine_endpoint
 
 
 CM_PRODUCTS_MAP_REVERSE = {value: key for key, value in CM_PRODUCTS_MAP.items()}
@@ -582,10 +582,13 @@ class FireeyeCentralManagementConnector(BaseConnector):
         self.save_progress(f"In action handler for: {self.get_action_identifier()}")
         action_result = self.add_action_result(ActionResult(dict(param)))
 
-        queue_id = str(param["queue_id"])
+        queue_id = param["queue_id"]
         sensor_name = param["sensor_name"]
 
-        endpoint = f"{CM_EMAILMGMT_QUARANTINE}/{quote(queue_id, safe='')}"
+        try:
+            endpoint = build_quarantine_endpoint(CM_EMAILMGMT_QUARANTINE, queue_id)
+        except ValueError as error:
+            return action_result.set_status(phantom.APP_ERROR, str(error))
 
         params = {"sensorName": sensor_name}
 
