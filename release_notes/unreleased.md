@@ -1,1 +1,3 @@
 **Unreleased**
+
+* Rejected invalid quarantine queue identifiers before request and vault path handling (PSAAS-31444).
