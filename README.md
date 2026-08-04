@@ -1,7 +1,7 @@
 # FireEye Central Management
 
 Publisher: Splunk Community <br>
-Connector Version: 1.1.1 <br>
+Connector Version: 1.1.2 <br>
 Product Vendor: FireEye <br>
 Product Name: FireEye CM <br>
 Minimum Product Version: 6.2.1
